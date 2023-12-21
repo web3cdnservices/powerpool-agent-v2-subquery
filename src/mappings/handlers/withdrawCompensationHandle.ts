@@ -3,7 +3,7 @@ import {
     WithdrawCompensationLog as WithdrawCompensationRandao,
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {WithdrawKeeperCompensation} from "../../types"
-import {BigNumber, logger} from "ethers/lib/ethers";
+import {BigNumber} from "ethers/lib/ethers";
 import {
     BIG_INT_ONE, getKeeper
 } from "../../helpers/initializers";

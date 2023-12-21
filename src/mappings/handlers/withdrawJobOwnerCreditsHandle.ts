@@ -2,10 +2,11 @@ import assert from "assert";
 import {
     WithdrawJobOwnerCreditsLog as WithdrawJobOwnerCreditsRandao,
 } from "../../types/abi-interfaces/PPAgentV2Randao";
-import {BigNumber, logger} from "ethers/lib/ethers";
+import {BigNumber} from "ethers/lib/ethers";
 import {
     BIG_INT_ONE, getOrCreateJobOwner, createJobOwnerWithdrawal
 } from "../../helpers/initializers";
+import {getOrCreateRandaoAgent} from "../initializers";
 
 export async function handleWithdrawJobOwnerCredits(log: WithdrawJobOwnerCreditsRandao): Promise<void> {
     assert(log.args, "No log.args");
@@ -31,4 +32,10 @@ export async function handleWithdrawJobOwnerCredits(log: WithdrawJobOwnerCredits
     jobOwner.withdrawalCount = BigNumber.from(jobOwner.withdrawalCount).add(BIG_INT_ONE).toBigInt();
 
     await jobOwner.save();
+
+
+    const agent = await getOrCreateRandaoAgent();
+    agent.jobsBalanceCount = BigNumber.from(agent.jobsBalanceCount).sub(log.args.amount).toBigInt();
+
+    await agent.save();
 }

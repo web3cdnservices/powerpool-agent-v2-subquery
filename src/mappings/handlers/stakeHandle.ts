@@ -2,10 +2,11 @@ import assert from "assert";
 import {
     StakeLog as StakeRandao,
 } from "../../types/abi-interfaces/PPAgentV2Randao";
-import {BigNumber, logger} from "ethers/lib/ethers";
+import {BigNumber} from "ethers/lib/ethers";
 import {
     BIG_INT_ONE, getKeeper, createKeeperStake
 } from "../../helpers/initializers";
+import {getOrCreateRandaoAgent} from "../initializers";
 
 export async function handleStake(log: StakeRandao): Promise<void> {
     assert(log.args, "No log.args");
@@ -29,4 +30,10 @@ export async function handleStake(log: StakeRandao): Promise<void> {
     keeper.stakeCount = BigNumber.from(keeper.stakeCount).add(BIG_INT_ONE).toBigInt();
 
     await keeper.save();
+
+    // adds stake to total counter
+    const agent = await getOrCreateRandaoAgent();
+    agent.stakeCount = BigNumber.from(agent.stakeCount).add(log.args.amount).toBigInt();
+
+    await agent.save();
 }

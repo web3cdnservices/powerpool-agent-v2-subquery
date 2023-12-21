@@ -6,13 +6,13 @@ import {InitiateKeeperActivation} from "../../types"
 import {
     getKeeper
 } from "../../helpers/initializers";
-import {logger} from "ethers/lib/ethers";
 
 
 export async function handleInitKeeperActivation(log: InitiateKeeperActivationLog): Promise<void> {
     assert(log.args, "No log.args");
 
-    logger.debug(`Processing InitKeeperActivation Handle`);
+    logger.info(`Processing InitKeeperActivation Handle`);
+    console.log('aaaaaaaaaaaaaaa',log.args.keeperId.toString());
 
     const keeper = await getKeeper(log.args.keeperId.toString());
     keeper.keeperActivationCanBeFinalizedAt = log.args.canBeFinalizedAt.toBigInt();

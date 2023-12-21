@@ -4,7 +4,6 @@ import {
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {getJobByKey} from "../initializers";
 import {JobKeeperChanged} from "../../types"
-import {logger} from "ethers/lib/ethers";
 
 export async function handleJobKeeperChanged(log: JobKeeperChangedLog): Promise<void> {
     assert(log.args, "No log.args");

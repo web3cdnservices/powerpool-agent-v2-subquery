@@ -3,7 +3,7 @@ import {
     SetRdConfigLog
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {getOrCreateRandaoAgent, getJobByKey} from "../initializers";
-import {BigNumber, logger} from "ethers/lib/ethers";
+import {BigNumber} from "ethers/lib/ethers";
 
 
 /****** RANDAO-SPECIFIC HANDLERS ******/

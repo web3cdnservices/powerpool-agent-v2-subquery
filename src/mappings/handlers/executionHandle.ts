@@ -1,10 +1,16 @@
 import assert from "assert";
 import {ExecuteLog as ExecuteRandao} from "../../types/abi-interfaces/PPAgentV2Randao";
 import {Execution} from "../../types";
-import {BIG_INT_ONE, BIG_INT_ZERO, getKeeper, getOrCreateJobOwner} from "../../helpers/initializers";
-import {BigNumber, logger} from "ethers/lib/ethers";
+import {
+    BIG_INT_ONE,
+    BIG_INT_ZERO,
+    getCertainExecution,
+    getKeeper,
+    getOrCreateJobOwner
+} from "../../helpers/initializers";
+import {BigNumber} from "ethers/lib/ethers";
 import {getJobByKey} from "../initializers";
-
+import {getOrCreateRandaoAgent} from "../initializers";
 export async function handleExecution(log: ExecuteRandao): Promise<void> {
     assert(log.args, "No log.args");
 
@@ -55,6 +61,7 @@ export async function handleExecution(log: ExecuteRandao): Promise<void> {
         job.credits = BigNumber.from(job.credits).sub(log.args!.compensation).toBigInt()
     }
 
+    job.lastExecutionAt = log.block.timestamp;
     job.totalCompensations = BigNumber.from(job.totalCompensations).add(log.args!.compensation).toBigInt();
 
     job.totalExpenses = BigNumber.from(job.totalExpenses).add(execution.expenses).toBigInt()
@@ -80,4 +87,14 @@ export async function handleExecution(log: ExecuteRandao): Promise<void> {
     await jobOwner.save();
     await execution.save();
     await keeper.save();
+
+    // count statistics after execution
+    const agent = await getOrCreateRandaoAgent();
+    // const execution = await getCertainExecution(log.transaction.hash);
+    agent.executionsCount = BigNumber.from(agent.executionsCount).add(BIG_INT_ONE).toBigInt();
+    agent.paidCount = BigNumber.from(agent.paidCount).add(log.args.compensation).toBigInt();
+
+    agent.profitCount = BigNumber.from(agent.profitCount).add(execution.profit).toBigInt();
+
+    await agent.save();
 }

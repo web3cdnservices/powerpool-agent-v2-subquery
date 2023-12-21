@@ -6,7 +6,8 @@ import {getJobByKey} from "../initializers";
 import {
     BIG_INT_ONE,createJobDeposit
 } from "../../helpers/initializers";
-import {BigNumber, logger} from "ethers/lib/ethers";
+import {BigNumber} from "ethers/lib/ethers";
+import {getOrCreateRandaoAgent} from "../initializers";
 
 export async function handleDepositJobCredits(log: DepositJobCreditsRandao): Promise<void> {
     assert(log.args, "No log.args");
@@ -31,4 +32,9 @@ export async function handleDepositJobCredits(log: DepositJobCreditsRandao): Pro
     job.depositCount = BigNumber.from(job.depositCount).add(BIG_INT_ONE).toBigInt();
 
     await job.save();
+
+    const agent = await getOrCreateRandaoAgent();
+    agent.jobsBalanceCount = BigNumber.from(agent.jobsBalanceCount).add(log.args.amount).toBigInt();
+
+    await agent.save();
 }

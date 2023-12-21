@@ -3,8 +3,9 @@ import {
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import  {createJob,getOrCreateJobOwner,BIG_INT_ONE, BIG_INT_ZERO} from "../../helpers/initializers"
 import {getOrCreateRandaoAgent} from "../initializers";
-import {BigNumber, logger} from "ethers/lib/ethers";
+import {BigNumber} from "ethers/lib/ethers";
 import assert from "assert";
+import {JobOwner} from "../../types";
 
 export async function handleRegisterJob(log: RegisterJobRandao): Promise<void> {
     assert(log.args, "No log.args");
@@ -56,8 +57,14 @@ export async function handleRegisterJob(log: RegisterJobRandao): Promise<void> {
     await job.save();
 
   const agent = await getOrCreateRandaoAgent();
+    // If job owner not exist here, he will be created at next step. So we can legally increment jow owners counter here.
+    let jobOwnerExists=await JobOwner.get(log.args.owner);
+    if (jobOwnerExists === undefined) {
+        agent.jobOwnersCount = BigNumber.from(agent.jobOwnersCount).add(BIG_INT_ONE).toBigInt();
+    }
 
-  agent.jobsCount = BigNumber.from(agent.jobsCount).add(BIG_INT_ONE).toBigInt()
+    agent.jobsCount = BigNumber.from(agent.jobsCount).add(BIG_INT_ONE).toBigInt();
+    agent.activeJobsCount = BigNumber.from(agent.activeJobsCount).add(BIG_INT_ONE).toBigInt();
 
     await agent.save();
 }

@@ -2,9 +2,12 @@ import assert from "assert";
 import {
     SetJobConfigLog as SetJobConfigRandao
 } from "../../types/abi-interfaces/PPAgentV2Randao";
-import {getJobByKey} from "../initializers";
+import {getJobByKey, getOrCreateRandaoAgent} from "../initializers";
 import {SetJobConfig} from "../../types"
-import {logger} from "ethers/lib/ethers";
+import {BigNumber} from "ethers";
+import {
+    BIG_INT_ONE
+} from "../../helpers/initializers";
 
 export async function handleSetJobConfig(log: SetJobConfigRandao): Promise<void> {
     assert(log.args, "No log.args");
@@ -38,4 +41,14 @@ export async function handleSetJobConfig(log: SetJobConfigRandao): Promise<void>
     entity.assertResolverSelector = log.args.assertResolverSelector_;
 
     await entity.save();
+
+    const agent = await getOrCreateRandaoAgent();
+    // if config wants to change job active state, we should handle activeJobsCount
+    if (!job.active && log.args.isActive_) {
+        agent.activeJobsCount = BigNumber.from(agent.activeJobsCount).add(BIG_INT_ONE).toBigInt();
+    } else if (job.active && !log.args.isActive_) {
+        agent.activeJobsCount = BigNumber.from(agent.activeJobsCount).sub(BIG_INT_ONE).toBigInt();
+    }
+
+    await agent.save();
 }

@@ -3,8 +3,7 @@ import {
     InitiateKeeperSlashingLog
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {getJobByKey} from "../initializers";
-import {InitiateKeeperSlashing} from "../../types/models"
-import {logger} from "ethers/lib/ethers";
+import {InitiateKeeperSlashing} from "../../types"
 
 export async function handleInitiateKeeperSlashing(log: InitiateKeeperSlashingLog): Promise<void> {
     assert(log.args, "No log.args");

@@ -4,8 +4,8 @@ import {
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {getJobByKey} from "../initializers";
 import {createJobWithdrawal, BIG_INT_ONE} from "../../helpers/initializers"
-import {BigNumber, logger} from "ethers/lib/ethers";
-
+import {BigNumber} from "ethers/lib/ethers";
+import {getOrCreateRandaoAgent} from "../initializers";
 export async function handleWithdrawJobCredits(log: WithdrawJobCreditsRandao): Promise<void> {
     assert(log.args, "No log.args");
 
@@ -30,4 +30,10 @@ export async function handleWithdrawJobCredits(log: WithdrawJobCreditsRandao): P
     job.withdrawalCount = BigNumber.from(job.withdrawalCount).add(BIG_INT_ONE).toBigInt();
 
     await job.save();
+
+    const agent = await getOrCreateRandaoAgent();
+
+    agent.jobsBalanceCount = BigNumber.from(agent.jobsBalanceCount).sub(log.args.amount).toBigInt();
+
+    await agent.save();
 }

@@ -8,7 +8,8 @@ import {
   Keeper,
   KeeperRedeemFinalize,
   KeeperRedeemInit,
-  KeeperStake
+  KeeperStake,
+  Agent as RandaoAgent, Execution
 } from "../types";
 import {BigNumber} from "ethers/lib/ethers";
 
@@ -16,6 +17,9 @@ export const BIG_INT_ZERO = 0n;
 export const BIG_INT_ONE = 1n;
 export const BIG_INT_TWO = 2n;
 export const ZERO_ADDRESS = 0n;
+
+
+
 
 /**
  *
@@ -108,6 +112,9 @@ export async function createKeeper(id: string): Promise<Keeper> {
       currentStake: 0n,
       executionCount: 0n,
       expenses: 0n,
+      getBySlashStake: 0n,
+      getBySlashStakeCounter: 0n,
+      id: id,
       keeperActivationCanBeFinalizedAt: 0n,
       numericalId: 0n,
       pendingWithdrawalAmount: 0n,
@@ -116,9 +123,9 @@ export async function createKeeper(id: string): Promise<Keeper> {
       redeemFinalizeCount: 0n,
       redeemInitCount: 0n,
       slashedStake: 0n,
+      slashedStakeCounter: 0n,
       stakeCount: 0n,
-      worker: "",
-      id: id
+      worker: ""
     })
   }
 
@@ -255,4 +262,19 @@ export async function createKeeperRedeemFinalize(id: string): Promise<KeeperRede
     })
   }
   return finalize;
+}
+
+/**
+ *
+ * @param id
+ */
+export async function getCertainExecution(id: string): Promise<Execution> {
+  // load in block used when we are certain entity created in the same block, so graph won't try access database and save time while indexing
+  let execution = await Execution.get(id);
+  // @CHECKME
+  // let execution = Execution.loadInBlock(id);
+  if (!execution) {
+    throw new Error(`Execution with address ${id} does not exists`);
+  }
+  return execution;
 }

@@ -4,7 +4,6 @@ import {
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {getJobByKey} from "../initializers";
 import {SetJobResolver} from "../../types"
-import {logger} from "ethers/lib/ethers";
 
 
 

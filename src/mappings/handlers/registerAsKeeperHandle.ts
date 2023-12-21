@@ -3,7 +3,7 @@ import {
     RegisterAsKeeperLog as RegisterAsKeeperRandao,
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {getOrCreateRandaoAgent, getJobByKey} from "../initializers";
-import {BigNumber, logger} from "ethers/lib/ethers";
+import {BigNumber} from "ethers/lib/ethers";
 import {
     BIG_INT_ONE,
     BIG_INT_ZERO,
@@ -13,18 +13,21 @@ import {
 export async function handleRegisterAsKeeper(log: RegisterAsKeeperRandao): Promise<void> {
     assert(log.args, "No log.args");
 
-    logger.debug(`Processing RegisterAsKeeper Handle`);
-
-    const keeperId = log.args.keeperId.toString();
+    const keeperId = log.args!.keeperId.toString();
     const keeper = await createKeeper(keeperId);
+
+    logger.info(`Processing RegisterAsKeeper Handle, Keeper: ${keeperId}`);
 
     keeper.createTxHash = log.transaction.hash;
     keeper.createdAt = log.block.timestamp;
-    keeper.active = true;
+    keeper.active = false;
     keeper.numericalId = BigNumber.from(keeperId).toBigInt();
-    keeper.admin = log.args.keeperAdmin;
-    keeper.worker = log.args.keeperWorker;
+    keeper.admin = log.args!.keeperAdmin;
+    keeper.worker = log.args!.keeperWorker;
 
+    keeper.getBySlashStake = BIG_INT_ZERO;
+    keeper.slashedStakeCounter = BIG_INT_ZERO;
+    keeper.getBySlashStakeCounter = BIG_INT_ZERO;
     keeper.slashedStake = BIG_INT_ZERO;
     keeper.currentStake = BIG_INT_ZERO;
     keeper.compensationsToWithdraw = BIG_INT_ZERO;
@@ -47,7 +50,7 @@ export async function handleRegisterAsKeeper(log: RegisterAsKeeperRandao): Promi
 
     agent.keepersCount = BigNumber.from(agent.keepersCount).add(BIG_INT_ONE).toBigInt();
 
-    agent.lastKeeperId = log.args.keeperId.toBigInt();
+    agent.lastKeeperId = log.args!.keeperId.toBigInt();
 
     await agent.save();
 }

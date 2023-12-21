@@ -1,7 +1,3 @@
-# To improve query performance, we strongly suggest adding indexes to any field that you plan to filter or sort by
-# Add the `@index` or `@index(unique: true)` annotation after any non-key field
-# https://academy.subquery.network/build/graphql.html#indexing-by-non-primary-key-field
-
 ### JOB ###
 
 type Execution @entity {
@@ -258,7 +254,14 @@ type Keeper @entity {
   admin: String!
   worker: String!
   currentStake: BigInt!
+  "How much stake lost with slash"
   slashedStake: BigInt!
+  "How much stake acquired with slash"
+  getBySlashStake: BigInt!
+  "How many times keeper were slashed"
+  slashedStakeCounter: BigInt!
+  "How many times keeper did slash others"
+  getBySlashStakeCounter: BigInt!
   compensationsToWithdraw: BigInt!
   pendingWithdrawalAmount: BigInt!
   pendingWithdrawalEndsAt: BigInt!
@@ -414,8 +417,22 @@ type Agent @entity {
   feeTotal: BigInt!
 
   keepersCount: BigInt!
+  activeKeepersCount: BigInt!
+  "All jobs counter. Regardless it's active status."
   jobsCount: BigInt!
+  "Only active jobs counter."
+  activeJobsCount: BigInt!
+  "All jobs balances. Calculated as all job credits + all jobOwners credits."
+  jobsBalanceCount: BigInt!
+  "Simple counter for job owners."
+  jobOwnersCount: BigInt!
   executionsCount: BigInt!
+  "Total stake across all keepers"
+  stakeCount: BigInt!
+  "All compensations paid to keepers. Ignores slashing as total amount of compensations stays the same."
+  paidCount: BigInt!
+  "Counter for profit made around all keepers."
+  profitCount: BigInt!
   lastKeeperId: BigInt!
 
   # Randao field

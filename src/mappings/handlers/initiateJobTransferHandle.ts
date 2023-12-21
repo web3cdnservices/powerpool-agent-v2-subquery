@@ -4,7 +4,6 @@ import {
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {getJobByKey} from "../initializers";
 import {InitiateJobTransfer} from "../../types"
-import {logger} from "ethers/lib/ethers";
 
 export async function handleInitiateJobTransfer(log: InitiateJobTransferRandao): Promise<void> {
     assert(log.args, "No log.args");

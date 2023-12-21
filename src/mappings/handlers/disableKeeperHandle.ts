@@ -3,10 +3,11 @@ import {
     DisableKeeperLog
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {DisableKeeper} from "../../types"
-import {BigNumber, logger} from "ethers/lib/ethers";
+import {BigNumber} from "ethers/lib/ethers";
 import {
-   getKeeper
+   getKeeper,BIG_INT_ONE
 } from "../../helpers/initializers";
+import {getOrCreateRandaoAgent} from "../initializers";
 
 export async function handleDisableKeeper(log: DisableKeeperLog): Promise<void> {
     assert(log.args, "No log.args");
@@ -19,12 +20,17 @@ export async function handleDisableKeeper(log: DisableKeeperLog): Promise<void> 
     await keeper.save();
 
     const disableEvent = DisableKeeper.create({
-        createTxHash: "", createdAt: 0n, id: log.transaction.hash, keeperId: ""
+        createTxHash: log.transaction.hash,
+        createdAt: log.block.timestamp,
+        id: log.transaction.hash,
+        keeperId: log.args.keeperId.toString()
     });
 
-    disableEvent.createTxHash = log.transaction.hash;
-    disableEvent.createdAt = log.block.timestamp;
-    disableEvent.keeperId = log.args.keeperId.toString();
-
     await disableEvent.save();
+
+    const agent = await getOrCreateRandaoAgent();
+
+    agent.activeKeepersCount = BigNumber.from(agent.activeKeepersCount).sub(BIG_INT_ONE).toBigInt();
+
+    await agent.save();
 }

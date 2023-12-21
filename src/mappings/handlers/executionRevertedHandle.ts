@@ -4,7 +4,7 @@ import {
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {getJobByKey} from "../initializers";
 import {ExecutionRevert} from "../../types"
-import {BigNumber, logger} from "ethers/lib/ethers";
+import {BigNumber} from "ethers/lib/ethers";
 import {
     BIG_INT_ONE, BIG_INT_ZERO, getOrCreateJobOwner
 } from "../../helpers/initializers";

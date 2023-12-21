@@ -3,7 +3,6 @@ import {
     SetAgentParamsLog as SetAgentParamsRandao,
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {getOrCreateRandaoAgent} from "../initializers";
-import {logger} from "ethers/lib/ethers";
 
 export async function handleSetAgentParams(log: SetAgentParamsRandao): Promise<void> {
     assert(log.args, "No log.args");

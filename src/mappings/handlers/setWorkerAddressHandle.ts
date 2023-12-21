@@ -6,7 +6,6 @@ import {SetKeeperWorkerAddress} from "../../types/models"
 import {
     getKeeper
 } from "../../helpers/initializers";
-import {logger} from "ethers/lib/ethers";
 
 export async function handleSetWorkerAddress(log: SetWorkerAddressRandao): Promise<void> {
     assert(log.args, "No log.args");

@@ -3,8 +3,9 @@ import {
     OwnerSlashLog as SlashRandao,
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {KeeperOwnerSlash} from "../../types"
-import {BigNumber, logger} from "ethers/lib/ethers";
+import {BigNumber} from "ethers/lib/ethers";
 import {
+    BIG_INT_ONE,
     getKeeper
 } from "../../helpers/initializers";
 
@@ -13,12 +14,12 @@ export async function handleSlash(log: SlashRandao): Promise<void> {
 
     logger.debug(`Processing Slash Handle`);
 
-
     const keeper = await getKeeper(log.args.keeperId.toString());
 
     keeper.currentStake = BigNumber.from(keeper.currentStake).sub(log.args.currentAmount).toBigInt();
     keeper.slashedStake = BigNumber.from(keeper.slashedStake).add(log.args.currentAmount).toBigInt();
     keeper.pendingWithdrawalAmount = BigNumber.from(keeper.pendingWithdrawalAmount).sub(log.args.pendingAmount).toBigInt();
+    keeper.slashedStakeCounter = BigNumber.from(keeper.slashedStakeCounter).add(BIG_INT_ONE).toBigInt();
 
     await keeper.save();
 

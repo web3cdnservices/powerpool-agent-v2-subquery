@@ -3,7 +3,7 @@ import {
     OwnershipTransferredLog as OwnershipTransferredRandao,
 } from "../../types/abi-interfaces/PPAgentV2Randao";
 import {getOrCreateRandaoAgent, getJobByKey} from "../initializers";
-import {BigNumber, logger, getDefaultProvider} from "ethers/lib/ethers";
+import {BigNumber, getDefaultProvider} from "ethers/lib/ethers";
 import {PPAgentV2Randao__factory} from "../../types/contracts"
 
 export async function handleOwnershipTransferred(log: OwnershipTransferredRandao): Promise<void> {
