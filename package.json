@@ -1,0 +1,39 @@
+{
+  "name": "powerpool-v2-subquery",
+  "version": "0.0.1",
+  "description": "PowerPoolv2 Subquery",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "subql build",
+    "codegen": "subql codegen",
+    "start:docker": "docker-compose pull && docker-compose up --remove-orphans",
+    "dev": "subql codegen && subql build && docker-compose pull && docker-compose up --remove-orphans",
+    "prepack": "rm -rf dist && npm run build",
+    "test": "subql build && subql-node-ethereum test"
+  },
+  "homepage": "https://github.com/web3cdnservices/powerpool-agent-v2-subquery",
+  "repository": "github:web3cdnservices/powerpool-agent-v2-subquery",
+  "files": [
+    "dist",
+    "schema.graphql",
+    "project.yaml"
+  ],
+  "author": "Web3CdnServices",
+  "license": "MIT",
+  "dependencies": {
+    "@subql/common": "latest",
+    "@subql/types-ethereum": "latest",
+    "@subql/validator": "latest",
+    "abab": "^2.0.6",
+    "assert": "^2.0.0",
+    "atob": "^2.1.2"
+  },
+  "devDependencies": {
+    "@subql/cli": "latest",
+    "@subql/node-ethereum": "latest",
+    "@subql/testing": "latest",
+    "@subql/types": "latest",
+    "ethers": "^5.7.2",
+    "typescript": "latest"
+  }
+}

@@ -1,0 +1,433 @@
+# To improve query performance, we strongly suggest adding indexes to any field that you plan to filter or sort by
+# Add the `@index` or `@index(unique: true)` annotation after any non-key field
+# https://academy.subquery.network/build/graphql.html#indexing-by-non-primary-key-field
+
+### JOB ###
+
+type Execution @entity {
+  id: ID!
+  createdAt: BigInt!
+  block: BigInt!
+  createTxHash: String!
+  keeper: Keeper!
+  keeperWorker: String!
+
+  job: Job!
+  jobAddress: String!
+  jobOwner: String!
+  binJobAfter: String!
+
+  compensation: BigInt!
+  expenses: BigInt!
+  profit: BigInt!
+
+  jobGasUsed: BigInt!
+  txGasUsed: BigInt!
+  txGasLimit: BigInt!
+  baseFee: BigInt!
+  gasPrice: BigInt!
+
+  txIndex: BigInt!
+  txNonce: BigInt!
+
+  txCalldata: String!
+  jobCalldata: String!
+  keeperConfig: BigInt!
+
+  correspondingSlashing: SlashKeeper @derivedFrom(field: "execution")
+}
+
+type Job @entity {
+  "jobKey"
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  active: Boolean!
+  jobAddress: String!
+  jobId: BigInt!
+  owner: JobOwner!
+  pendingOwner: JobOwner
+  jobSelector: String!
+
+  maxBaseFeeGwei: BigInt!
+  rewardPct: BigInt!
+  fixedReward: BigInt!
+  calldataSource: BigInt!
+  intervalSeconds: BigInt!
+
+  credits: BigInt!
+  lastExecutionAt: BigInt!
+  minKeeperCVP: BigInt!
+
+  # Flags
+  useJobOwnerCredits: Boolean!
+  assertResolverSelector: Boolean!
+
+  # Optinal
+  preDefinedCalldata: String
+  resolverAddress: String
+  resolverCalldata: String
+
+  executionCount: BigInt!
+  executionRevertCount: BigInt!
+  slashingCount: BigInt!
+  depositCount: BigInt!
+  withdrawalCount: BigInt!
+
+  totalExpenses: BigInt!
+  totalCompensations: BigInt!
+  totalProfit: BigInt!
+
+  # randao fields
+  jobCreatedAt: BigInt!
+  jobNextKeeperId: BigInt!
+  jobReservedSlasherId: BigInt!
+  jobSlashingPossibleAfter: BigInt!
+
+  executions: [Execution!]! @derivedFrom(field: "job")
+  deposits: [JobDeposit!]! @derivedFrom(field: "job")
+  withdrawals: [JobWithdrawal!]! @derivedFrom(field: "job")
+  executionReverts: [ExecutionRevert!]! @derivedFrom(field: "job")
+  keeperSlashings: [SlashKeeper!]! @derivedFrom(field: "job")
+}
+
+type ExecutionRevert @entity {
+  id: ID!
+
+  createTxHash: String!
+  createdAt: BigInt!
+  txIndex: BigInt!
+  txNonce: BigInt!
+
+  txGasUsed: BigInt!
+  txGasLimit: BigInt!
+
+  baseFee: BigInt!
+  gasPrice: BigInt!
+  compensation: BigInt!
+  profit: BigInt!
+  expenses: BigInt!
+
+  executionResponse: String!
+
+  job: Job!
+  jobOwner: String!
+  actualKeeper: Keeper!
+  assignedKeeper: Keeper!
+
+  correspondingSlashing: SlashKeeper @derivedFrom(field: "executionRevert")
+}
+
+type JobDeposit @entity {
+  id: ID!
+  createTxHash: String!
+  job: Job!
+  depositor: String!
+  createdAt: BigInt!
+
+  amount: BigInt!
+  fee: BigInt!
+  "total = amount + fee"
+  total: BigInt!
+}
+
+type JobWithdrawal @entity {
+  id: ID!
+  createTxHash: String!
+  job: Job!
+  owner: String!
+  to: String!
+  createdAt: BigInt!
+
+  amount: BigInt!
+}
+
+### JOB DEBUG EVENTS ###
+
+type InitiateJobTransfer @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  job: Job!
+  to: String!
+  from: String!
+}
+
+type AcceptJobTransfer @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  job: Job!
+  to: String!
+}
+
+type SetJobConfig @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  job: Job!
+  isActive: Boolean!
+  useJobOwnerCredits: Boolean!
+  assertResolverSelector: Boolean!
+}
+
+type SetJobPreDefinedCalldata @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  job: Job!
+  preDefinedCalldata: String!
+}
+
+type SetJobResolver @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  job: Job!
+  resolverAddress: String!
+  resolverCalldata: String!
+}
+
+type JobUpdate @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  job: Job!
+  maxBaseFeeGwei: BigInt!
+  rewardPct: BigInt!
+  fixedReward: BigInt!
+  jobMinCvp: BigInt!
+  intervalSeconds: BigInt!
+}
+
+type JobKeeperChanged @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  job: Job!
+  keeperFrom: Keeper!
+  keeperTo: Keeper!
+}
+
+### JOB OWNER ###
+
+type JobOwner @entity {
+  id: ID!
+  credits: BigInt!
+
+  depositCount: BigInt!
+  withdrawalCount: BigInt!
+
+  jobs: [Job!]! @derivedFrom(field: "owner")
+  deposits: [JobOwnerDeposit!]! @derivedFrom(field: "jobOwner")
+  withdrawals: [JobOwnerWithdrawal!]! @derivedFrom(field: "jobOwner")
+}
+
+type JobOwnerDeposit @entity {
+  id: ID!
+  createTxHash: String!
+  jobOwner: JobOwner!
+  depositor: String!
+  createdAt: BigInt!
+
+  amount: BigInt!
+  fee: BigInt!
+  "total = amount + fee"
+  total: BigInt!
+}
+
+type JobOwnerWithdrawal @entity {
+  id: ID!
+  createTxHash: String!
+  jobOwner: JobOwner!
+  to: String!
+  createdAt: BigInt!
+
+  amount: BigInt!
+}
+
+### KEEPER ###
+
+type Keeper @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  active: Boolean!
+  keeperActivationCanBeFinalizedAt: BigInt!
+  numericalId: BigInt!
+  admin: String!
+  worker: String!
+  currentStake: BigInt!
+  slashedStake: BigInt!
+  compensationsToWithdraw: BigInt!
+  pendingWithdrawalAmount: BigInt!
+  pendingWithdrawalEndsAt: BigInt!
+  executionCount: BigInt!
+
+  compensations: BigInt!
+  expenses: BigInt!
+  profit: BigInt!
+
+  stakeCount: BigInt!
+  redeemInitCount: BigInt!
+  redeemFinalizeCount: BigInt!
+  compensationWithdrawalCount: BigInt!
+
+  # randao fields
+  stakes: [KeeperStake!]! @derivedFrom(field: "keeper")
+  redeemInitiated: [KeeperRedeemInit!]! @derivedFrom(field: "keeper")
+  redeemFinalized: [KeeperRedeemFinalize!]! @derivedFrom(field: "keeper")
+
+  executions: [Execution!]! @derivedFrom(field: "keeper")
+
+  executionRevertsActual: [ExecutionRevert!]! @derivedFrom(field: "actualKeeper")
+  executionRevertsAssigned: [ExecutionRevert!]! @derivedFrom(field: "assignedKeeper")
+
+  wasSlashed: [SlashKeeper!]! @derivedFrom(field: "slashedKeeper")
+  slashedOthers: [SlashKeeper!]! @derivedFrom(field: "slasherKeeper")
+}
+
+type SlashKeeper @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  txIndex: BigInt!
+  txNonce: BigInt!
+  job: Job!
+  slashedKeeper: Keeper!
+  slasherKeeper: Keeper!
+  execution: Execution
+  executionRevert: ExecutionRevert
+  fixedSlashAmount: BigInt!
+  dynamicSlashAmount: BigInt!
+  slashAmountMissing: BigInt!
+  slashAmountResult: BigInt!
+}
+
+type KeeperStake @entity {
+  id: ID!
+  createTxHash: String!
+  keeper: Keeper!
+  staker: String!
+  amount: BigInt!
+  createdAt: BigInt!
+}
+
+type KeeperRedeemInit @entity {
+  id: ID!
+  createTxHash: String!
+  keeper: Keeper!
+  initiatedAt: BigInt!
+  createdAt: BigInt!
+  availableAt: BigInt!
+  cooldownSeconds: BigInt!
+
+  inputAmount: BigInt!
+  stakeReduction: BigInt!
+  slashedStakeReduction: BigInt!
+}
+
+type KeeperRedeemFinalize @entity {
+  id: ID!
+  createTxHash: String!
+  keeper: Keeper!
+  to: String!
+  createdAt: BigInt!
+
+  amount: BigInt!
+}
+
+### KEEPER DEBUG EVENTS ###
+
+type FinalizeKeeperActivation @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  keeper: Keeper!
+}
+
+type InitiateKeeperActivation @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  keeper: Keeper!
+  canBeFinalizedAt: BigInt!
+}
+
+type DisableKeeper @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  keeper: Keeper!
+}
+
+type KeeperOwnerSlash @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  keeper: Keeper!
+  to: String!
+  currentAmount: BigInt!
+  pendingAmount: BigInt!
+}
+
+type WithdrawKeeperCompensation @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  keeper: Keeper!
+  to: String!
+  amount: BigInt!
+}
+
+type SetKeeperWorkerAddress @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  keeper: Keeper!
+  prev: String!
+  worker: String!
+}
+
+type InitiateKeeperSlashing @entity {
+  id: ID!
+  createTxHash: String!
+  createdAt: BigInt!
+  job: Job!
+  slasherKeeper: Keeper!
+  useResolver: Boolean!
+  jobSlashingPossibleAfter: BigInt!
+}
+
+### AGENT (SINGLETON) ###
+
+type Agent @entity {
+  id: ID!
+  address: String!
+  owner: String!
+  cvp: String!
+
+  minKeeperCVP: BigInt!
+  pendingWithdrawalTimeoutSeconds: BigInt!
+
+  feePpm: BigInt!
+  feeTotal: BigInt!
+
+  keepersCount: BigInt!
+  jobsCount: BigInt!
+  executionsCount: BigInt!
+  lastKeeperId: BigInt!
+
+  # Randao field
+  slashingEpochBlocks: BigInt!
+  period1: BigInt!
+  period2: BigInt!
+  slashingFeeFixedCVP: BigInt!
+  slashingFeeBps: BigInt!
+  jobMinCreditsFinney: BigInt!
+  agentMaxCvpStake: BigInt!
+  jobCompensationMultiplierBps: BigInt!
+  stakeDivisor: BigInt!
+  keeperActivationTimeoutHours: BigInt!
+  jobFixedRewardFinney: BigInt!
+}
