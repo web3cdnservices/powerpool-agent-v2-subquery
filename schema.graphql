@@ -276,6 +276,9 @@ type Keeper @entity {
   redeemFinalizeCount: BigInt!
   compensationWithdrawalCount: BigInt!
 
+  #Unknown field
+  assignedJobsCount: BigInt
+
   # randao fields
   stakes: [KeeperStake!]! @derivedFrom(field: "keeper")
   redeemInitiated: [KeeperRedeemInit!]! @derivedFrom(field: "keeper")
