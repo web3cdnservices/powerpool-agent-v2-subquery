@@ -11,3 +11,38 @@
 
 ## Query your project
 #TODO DOCS!
+
+
+Url:
+https://powerpoolv2-subql.web3cdn.services/graphql
+
+
+Ql query1
+```
+# Write your query or mutation here
+query{
+        keeper(id: "1") {
+          id
+    active
+    createdAt
+    admin
+    currentStake
+    profit
+    worker
+    compensations
+    compensationsToWithdraw
+    expenses
+    executionCount
+    slashedStakeCounter
+    slashedStake
+    getBySlashStakeCounter
+    getBySlashStake
+    pendingWithdrawalAmount
+    pendingWithdrawalEndsAt
+    keeperActivationCanBeFinalizedAt
+    getBySlashStake
+    getBySlashStakeCounter
+
+        }
+    }
+```
